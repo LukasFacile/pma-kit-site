@@ -3,380 +3,295 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Undertow — AI Prediction Market Trading</title>
-<meta name="description" content="AI-powered strategy discovery, backtesting, and trading for prediction markets. Run autonomous agents on your own machine.">
+<title>Undertow — Autonomous Prediction Market Trading</title>
+<meta name="description" content="AI agents that research, trade, and continuously improve across every prediction market category. Sports, elections, economics, weather, commodities — handled.">
 <style>
   :root {
-    --bg: #0a0b0f;
-    --surface: #12141c;
-    --border: #1e2130;
-    --text: #e4e7f0;
-    --muted: #7c819a;
-    --accent: #6366f1;
-    --accent-hover: #818cf8;
-    --green: #22c55e;
-    --green-dim: rgba(34,197,94,0.12);
+    --bg: #06070b; --surface: #0d0f16; --surface2: #141722;
+    --border: #1c1f30; --text: #e6e9f0; --text2: #b0b5c8;
+    --muted: #6a6f8a; --accent: #6366f1; --accent2: #818cf8;
+    --green: #22c55e; --green-dim: rgba(34,197,94,0.10);
+    --amber: #f59e0b; --amber-dim: rgba(245,158,11,0.10);
+    --blue: #3b82f6; --blue-dim: rgba(59,130,246,0.10);
+    --rose: #f43f5e; --rose-dim: rgba(244,63,94,0.10);
+    --cyan: #06b6d4; --cyan-dim: rgba(6,182,212,0.10);
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-  }
-
-  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+         background: var(--bg); color: var(--text); line-height: 1.6; }
+  .container { max-width: 1000px; margin: 0 auto; padding: 0 24px; }
 
   /* Nav */
-  nav {
-    padding: 20px 0;
-    border-bottom: 1px solid var(--border);
-  }
+  nav { padding: 18px 0; border-bottom: 1px solid var(--border); }
   nav .container { display: flex; justify-content: space-between; align-items: center; }
-  .logo { font-weight: 700; font-size: 1.1rem; }
-  .logo span { color: var(--accent); }
-  nav a { color: var(--muted); text-decoration: none; margin-left: 24px; font-size: 0.9rem; }
+  .logo { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em;
+          background: linear-gradient(135deg, var(--text) 20%, var(--accent) 100%);
+          -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 0.85rem; }
   nav a:hover { color: var(--text); }
 
   /* Hero */
-  .hero {
-    padding: 80px 0 60px;
-    text-align: center;
-  }
-  .hero h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    line-height: 1.1;
-    margin-bottom: 20px;
-    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .hero p {
-    font-size: 1.2rem;
-    color: var(--muted);
-    max-width: 600px;
-    margin: 0 auto 32px;
-  }
-  .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero { padding: 80px 0 48px; text-align: center; }
+  .hero-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem;
+                font-weight: 500; background: var(--accent); background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(6,182,212,0.15));
+                color: var(--accent2); border: 1px solid rgba(99,102,241,0.2); margin-bottom: 20px; }
+  .hero h1 { font-size: 3.2rem; font-weight: 800; line-height: 1.08; letter-spacing: -0.03em;
+             margin-bottom: 18px; }
+  .hero h1 span { background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%);
+                  -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { font-size: 1.15rem; color: var(--text2); max-width: 580px; margin: 0 auto 32px; }
+  .hero-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn { display: inline-block; padding: 13px 26px; border-radius: 8px; font-size: 0.9rem;
+         font-weight: 600; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
 
-  .btn {
-    display: inline-block;
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-    cursor: pointer;
-    border: none;
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: white;
-  }
-  .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
-  .btn-secondary {
-    background: transparent;
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-  .btn-secondary:hover { border-color: var(--muted); }
-
-  /* Features */
-  .features {
-    padding: 60px 0;
-  }
-  .features h2 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 48px;
-  }
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
-  }
-  .feature {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 28px;
-  }
-  .feature-icon { font-size: 1.5rem; margin-bottom: 12px; }
-  .feature h3 { font-size: 1.1rem; margin-bottom: 8px; }
-  .feature p { color: var(--muted); font-size: 0.9rem; }
+  /* Markets strip */
+  .markets { padding: 48px 0; border-top: 1px solid var(--border); }
+  .markets h2 { text-align: center; font-size: 1rem; color: var(--muted); font-weight: 500;
+                text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 28px; }
+  .market-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+  .market-tag { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+                padding: 16px; text-align: center; transition: border-color 0.2s; }
+  .market-tag:hover { border-color: var(--accent); }
+  .market-icon { font-size: 1.5rem; margin-bottom: 6px; }
+  .market-name { font-size: 0.82rem; font-weight: 600; }
+  .market-sub { font-size: 0.7rem; color: var(--muted); }
 
   /* How it works */
-  .how-it-works {
-    padding: 60px 0;
-    border-top: 1px solid var(--border);
-  }
-  .how-it-works h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
-  .steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 32px;
-    text-align: center;
-  }
-  .step-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: var(--accent);
-    color: white;
-    font-weight: 700;
-    margin-bottom: 16px;
-  }
-  .step h3 { margin-bottom: 8px; }
-  .step p { color: var(--muted); font-size: 0.9rem; }
+  .how { padding: 64px 0; border-top: 1px solid var(--border); }
+  .how h2 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 48px; }
+  .agent-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .agent-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+                padding: 22px; position: relative; overflow: hidden; }
+  .agent-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .agent-card.conductor::before { background: var(--accent); }
+  .agent-card.sage::before { background: var(--green); }
+  .agent-card.critic::before { background: var(--amber); }
+  .agent-card.overseer::before { background: var(--cyan); }
+  .agent-role { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em;
+                font-weight: 700; margin-bottom: 6px; }
+  .agent-card.conductor .agent-role { color: var(--accent2); }
+  .agent-card.sage .agent-role { color: var(--green); }
+  .agent-card.critic .agent-role { color: var(--amber); }
+  .agent-card.overseer .agent-role { color: var(--cyan); }
+  .agent-card h3 { font-size: 0.95rem; margin-bottom: 6px; }
+  .agent-card p { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
 
-  /* Pricing */
-  .pricing {
-    padding: 60px 0;
-    border-top: 1px solid var(--border);
+  /* Loop */
+  .loop { padding: 48px 0; text-align: center; }
+  .loop-visual {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    flex-wrap: wrap; margin-top: 24px;
   }
-  .pricing h2 { text-align: center; font-size: 2rem; margin-bottom: 12px; }
-  .pricing > .container > p { text-align: center; color: var(--muted); margin-bottom: 48px; }
-  .pricing-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-  @media (max-width: 640px) { .pricing-grid { grid-template-columns: 1fr; } }
+  .loop-step { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+               padding: 12px 18px; font-size: 0.82rem; font-weight: 500; }
+  .loop-arrow { color: var(--muted); font-size: 1.2rem; }
 
-  .plan {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px;
-  }
-  .plan.featured { border-color: var(--accent); }
-  .plan h3 { font-size: 1.3rem; margin-bottom: 4px; }
-  .plan .price { font-size: 2.5rem; font-weight: 800; margin: 16px 0 4px; }
-  .plan .price span { font-size: 1rem; color: var(--muted); font-weight: 400; }
-  .plan .period { color: var(--muted); font-size: 0.85rem; margin-bottom: 24px; }
-  .plan ul { list-style: none; margin-bottom: 24px; }
-  .plan li { padding: 6px 0; font-size: 0.9rem; color: var(--muted); }
-  .plan li::before { content: "\2713"; color: var(--green); margin-right: 8px; font-weight: 700; }
-  .plan .btn { width: 100%; text-align: center; }
+  /* Features */
+  .features { padding: 64px 0; border-top: 1px solid var(--border); }
+  .features h2 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 48px; }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .feat { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+  .feat h3 { font-size: 1rem; margin-bottom: 6px; }
+  .feat p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
 
   /* Terminal */
-  .terminal {
-    background: #0d1117;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 24px;
-    margin: 40px auto;
-    max-width: 600px;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 0.85rem;
-    line-height: 1.8;
-  }
+  .terminal { background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+              padding: 22px; margin: 40px auto; max-width: 520px; font-family: 'SF Mono', 'Fira Code', monospace;
+              font-size: 0.82rem; line-height: 2; }
   .terminal .prompt { color: var(--green); }
   .terminal .comment { color: var(--muted); }
 
   /* BYOK */
-  .byok {
-    padding: 60px 0;
-    border-top: 1px solid var(--border);
-    text-align: center;
-  }
-  .byok h2 { font-size: 2rem; margin-bottom: 16px; }
-  .byok p { color: var(--muted); max-width: 600px; margin: 0 auto 24px; font-size: 1rem; }
-  .byok-badges { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-  .badge {
-    background: var(--green-dim);
-    color: var(--green);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
+  .byok { padding: 56px 0; border-top: 1px solid var(--border); text-align: center; }
+  .byok h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+  .byok p { color: var(--text2); max-width: 520px; margin: 0 auto 20px; font-size: 0.95rem; }
+  .byok-badges { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .byok-badge { background: var(--green-dim); color: var(--green); padding: 6px 14px; border-radius: 20px;
+                font-size: 0.78rem; font-weight: 500; }
+
+  /* Pricing */
+  .pricing { padding: 64px 0; border-top: 1px solid var(--border); }
+  .pricing h2 { text-align: center; font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .pricing > .container > p { text-align: center; color: var(--muted); margin-bottom: 40px; }
+  .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 640px; margin: 0 auto; }
+  @media (max-width: 600px) { .price-grid { grid-template-columns: 1fr; } }
+  .plan { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 28px; }
+  .plan.pro { border-color: var(--accent); }
+  .plan h3 { font-size: 1.2rem; margin-bottom: 2px; }
+  .plan .price { font-size: 2.4rem; font-weight: 800; margin: 12px 0 4px; }
+  .plan .price span { font-size: 0.9rem; color: var(--muted); font-weight: 400; }
+  .plan .period { color: var(--muted); font-size: 0.8rem; margin-bottom: 20px; }
+  .plan ul { list-style: none; margin-bottom: 20px; }
+  .plan li { padding: 5px 0; font-size: 0.82rem; color: var(--text2); }
+  .plan li::before { content: "\2713"; color: var(--green); margin-right: 8px; font-weight: 700; }
+  .plan .btn { width: 100%; text-align: center; }
 
   /* Footer */
-  footer {
-    padding: 40px 0;
-    border-top: 1px solid var(--border);
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.8rem;
-  }
+  footer { padding: 32px 0; border-top: 1px solid var(--border); text-align: center;
+           color: var(--muted); font-size: 0.72rem; }
   footer a { color: var(--muted); }
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .hero h1 { font-size: 2rem; }
-    .hero p { font-size: 1rem; }
-  }
+  @media (max-width: 640px) { .hero h1 { font-size: 2rem; } }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="container">
-    <div class="logo"><span>Undertow</span></div>
-    <div>
-      <a href="#features">Features</a>
-      <a href="#how">How It Works</a>
-      <a href="#pricing">Pricing</a>
-      <a href="https://github.com/LukasFacile/prediction_market_agent_package" target="_blank">GitHub</a>
+<nav><div class="container">
+  <div class="logo">Undertow</div>
+  <div><a href="#markets">Markets</a><a href="#how">How It Works</a><a href="#pricing">Pricing</a></div>
+</div></nav>
+
+<section class="hero"><div class="container">
+  <div class="hero-badge">Self-improving AI agents for prediction markets</div>
+  <h1>Research. Trade.<br><span>Improve. Repeat.</span></h1>
+  <p>Autonomous agents that handle every aspect of prediction market trading — from research to execution to self-evaluation — across sports, elections, economics, weather, and more.</p>
+  <div class="hero-buttons">
+    <a href="#pricing" class="btn btn-primary">Get Started</a>
+    <a href="#how" class="btn btn-ghost">See How It Works</a>
+  </div>
+</div></section>
+
+<section class="markets" id="markets"><div class="container">
+  <h2>Every Market Category. One System.</h2>
+  <div class="market-grid">
+    <div class="market-tag"><div class="market-icon">&#x1F3C8;</div><div class="market-name">Sports</div><div class="market-sub">NFL, NBA, MLB, Soccer</div></div>
+    <div class="market-tag"><div class="market-icon">&#x1F5F3;</div><div class="market-name">Elections</div><div class="market-sub">US, State, Global</div></div>
+    <div class="market-tag"><div class="market-icon">&#x26FD;</div><div class="market-name">Gas & Oil</div><div class="market-sub">Prices, Production</div></div>
+    <div class="market-tag"><div class="market-icon">&#x1F321;</div><div class="market-name">Weather</div><div class="market-sub">Temp, Storms, Records</div></div>
+    <div class="market-tag"><div class="market-icon">&#x1F4C8;</div><div class="market-name">Economics</div><div class="market-sub">CPI, Jobs, GDP</div></div>
+    <div class="market-tag"><div class="market-icon">&#x20BF;</div><div class="market-name">Crypto</div><div class="market-sub">BTC, ETH Direction</div></div>
+    <div class="market-tag"><div class="market-icon">&#x1F30D;</div><div class="market-name">Geopolitics</div><div class="market-sub">Tariffs, Conflicts</div></div>
+  </div>
+</div></section>
+
+<section class="how" id="how"><div class="container">
+  <h2>Four Agents. One Mission.</h2>
+  <div class="agent-grid">
+    <div class="agent-card conductor">
+      <div class="agent-role">CONDUCTOR</div>
+      <h3>Portfolio Manager</h3>
+      <p>Allocates capital across strategies, enforces risk limits, promotes winners, and demotes losers. The strategic brain.</p>
+    </div>
+    <div class="agent-card sage">
+      <div class="agent-role">SAGE</div>
+      <h3>Researcher</h3>
+      <p>Autonomously discovers new edges by analyzing market data, testing hypotheses, and writing research findings. Runs 24/7.</p>
+    </div>
+    <div class="agent-card critic">
+      <div class="agent-role">CRITIC</div>
+      <h3>QA Auditor</h3>
+      <p>Pokes holes in every strategy. Detects overfitting, degradation, and sample-size issues before they cost you money.</p>
+    </div>
+    <div class="agent-card overseer">
+      <div class="agent-role">OVERSEER</div>
+      <h3>Self-Evaluator</h3>
+      <p>Audits the entire system's decisions. Catches concentration risk, stale strategies, and missed opportunities.</p>
     </div>
   </div>
-</nav>
 
-<section class="hero">
-  <div class="container">
-    <h1>AI Agents That Find<br>Trading Edges For You</h1>
-    <p>Autonomous strategy discovery, backtesting, and trading for prediction markets. Runs entirely on your machine.</p>
-    <div class="hero-buttons">
-      <a href="#pricing" class="btn btn-primary">Get Started</a>
-      <a href="#how" class="btn btn-secondary">See How It Works</a>
+  <div class="loop">
+    <p style="color:var(--muted);font-size:0.9rem">The agents run in a continuous improvement loop:</p>
+    <div class="loop-visual">
+      <div class="loop-step">SAGE discovers</div><div class="loop-arrow">&rarr;</div>
+      <div class="loop-step">CRITIC validates</div><div class="loop-arrow">&rarr;</div>
+      <div class="loop-step">CONDUCTOR deploys</div><div class="loop-arrow">&rarr;</div>
+      <div class="loop-step">OVERSEER audits</div><div class="loop-arrow">&rarr;</div>
+      <div class="loop-step" style="color:var(--accent2)">repeat</div>
     </div>
   </div>
-</section>
+</div></section>
 
-<section class="features" id="features">
-  <div class="container">
-    <h2>What You Get</h2>
-    <div class="feature-grid">
-      <div class="feature">
-        <div class="feature-icon">&#x1F916;</div>
-        <h3>4 AI Agent Roles</h3>
-        <p>CONDUCTOR manages your portfolio. SAGE discovers new strategies. CRITIC audits for overfitting. OVERSEER evaluates decisions.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">&#x1F4C8;</div>
-        <h3>Strategy Discovery</h3>
-        <p>SAGE autonomously researches market data, proposes hypotheses, and backtests them. New edges found while you sleep.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">&#x1F6E1;</div>
-        <h3>Built-in Risk Management</h3>
-        <p>Kelly-optimal sizing, circuit breakers, daily loss limits, and drawdown halts. Battle-tested rules from SOUL.md.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">&#x1F9EA;</div>
-        <h3>Full Backtesting Engine</h3>
-        <p>Replay historical data through any strategy. Get ROI, Sharpe ratio, max drawdown, win rate, and P&L curves.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">&#x1F50C;</div>
-        <h3>Plugin System</h3>
-        <p>5 built-in strategies to start. Write your own or install community strategies with a single command.</p>
-      </div>
-      <div class="feature">
-        <div class="feature-icon">&#x1F4BB;</div>
-        <h3>Browser Dashboard</h3>
-        <p>Monitor everything at localhost:8000. Portfolio stats, agent activity, LLM costs, strategy performance — all in one place.</p>
-      </div>
+<section class="features"><div class="container">
+  <h2>Built for Serious Prediction Markets</h2>
+  <div class="feat-grid">
+    <div class="feat">
+      <h3>Autonomous Research</h3>
+      <p>SAGE doesn't wait for instructions. It analyzes market categories, finds patterns, backtests hypotheses, and proposes strategies — all on its own.</p>
+    </div>
+    <div class="feat">
+      <h3>Battle-Tested Risk Management</h3>
+      <p>Kelly-optimal sizing, daily loss limits, 5-loss circuit breakers, 30% drawdown halts. Rules enforced automatically, never overridden.</p>
+    </div>
+    <div class="feat">
+      <h3>Full Backtesting Engine</h3>
+      <p>Replay any strategy against historical data. Get ROI, Sharpe ratio, max drawdown, win rate, and P&L curves before risking a dollar.</p>
+    </div>
+    <div class="feat">
+      <h3>Chat With Your Agents</h3>
+      <p>Ask CONDUCTOR about your portfolio. Ask SAGE what it's researching. Ask CRITIC why it rejected a strategy. Real conversations with real context.</p>
+    </div>
+    <div class="feat">
+      <h3>Plugin Strategies</h3>
+      <p>5 starter strategies included. Write your own in Python or install community strategies. The agents evaluate them all equally.</p>
+    </div>
+    <div class="feat">
+      <h3>Browser Dashboard</h3>
+      <p>Portfolio overview, agent activity feed, strategy performance, LLM cost tracking, and settings — all at localhost:8000.</p>
     </div>
   </div>
-</section>
 
-<section class="how-it-works" id="how">
-  <div class="container">
-    <h2>How It Works</h2>
-    <div class="steps">
-      <div class="step">
-        <div class="step-number">1</div>
-        <h3>Install & Setup</h3>
-        <p>Run <code>undertow setup</code>. The wizard walks you through API keys and risk preferences.</p>
-      </div>
-      <div class="step">
-        <div class="step-number">2</div>
-        <h3>Agents Discover</h3>
-        <p>SAGE researches markets, finds patterns, and proposes strategies. CRITIC validates them.</p>
-      </div>
-      <div class="step">
-        <div class="step-number">3</div>
-        <h3>Paper Trade</h3>
-        <p>Strategies run in paper mode first. Watch your simulated portfolio grow before risking real money.</p>
-      </div>
-      <div class="step">
-        <div class="step-number">4</div>
-        <h3>Go Live</h3>
-        <p>Upgrade to Pro to enable live trading. CONDUCTOR manages capital allocation and risk automatically.</p>
-      </div>
-    </div>
-
-    <div class="terminal">
-      <div class="comment"># Install and run in 3 commands</div>
-      <div><span class="prompt">$</span> pip install undertow-ai</div>
-      <div><span class="prompt">$</span> undertow setup</div>
-      <div><span class="prompt">$</span> undertow serve</div>
-      <div class="comment"># Dashboard at http://localhost:8000</div>
-    </div>
+  <div class="terminal">
+    <div class="comment"># Install and run</div>
+    <div><span class="prompt">$</span> pip install undertow-ai</div>
+    <div><span class="prompt">$</span> undertow setup</div>
+    <div><span class="prompt">$</span> undertow serve</div>
+    <div class="comment"># Dashboard at http://localhost:8000</div>
   </div>
-</section>
+</div></section>
 
-<section class="byok">
-  <div class="container">
-    <h2>Your Keys. Your Machine. Your Data.</h2>
-    <p>Undertow runs 100% locally. We never see your API keys, trading data, or strategies. You bring your own keys, you keep full control.</p>
-    <div class="byok-badges">
-      <span class="badge">Zero data collection</span>
-      <span class="badge">No telemetry</span>
-      <span class="badge">Keys encrypted at rest</span>
-      <span class="badge">Runs offline</span>
-    </div>
+<section class="byok"><div class="container">
+  <h2>Your Keys. Your Machine. Your Data.</h2>
+  <p>Undertow runs 100% locally. We never see your API keys, trading data, or strategies. You bring your own keys, you keep full control.</p>
+  <div class="byok-badges">
+    <span class="byok-badge">Zero data collection</span>
+    <span class="byok-badge">No telemetry</span>
+    <span class="byok-badge">Keys encrypted at rest</span>
+    <span class="byok-badge">Works offline</span>
   </div>
-</section>
+</div></section>
 
-<section class="pricing" id="pricing">
-  <div class="container">
-    <h2>Pricing</h2>
-    <p>Start free. Upgrade when you're ready to trade live.</p>
-    <div class="pricing-grid">
-      <div class="plan">
-        <h3>Free</h3>
-        <div class="price">$0</div>
-        <div class="period">forever</div>
-        <ul>
-          <li>Full AI agent fleet</li>
-          <li>Unlimited paper trading</li>
-          <li>Strategy discovery (SAGE)</li>
-          <li>Full backtesting engine</li>
-          <li>Browser dashboard</li>
-          <li>5 built-in strategies</li>
-        </ul>
-        <a href="#how" class="btn btn-secondary">Get Started Free</a>
-      </div>
-      <div class="plan featured">
-        <h3>Pro</h3>
-        <!-- TODO: Replace with your Stripe Payment Link URL -->
-        <div class="price">$49<span>/mo</span></div>
-        <div class="period">cancel anytime</div>
-        <ul>
-          <li>Everything in Free</li>
-          <li>Live trading on Kalshi</li>
-          <li>Full orchestration (live mode)</li>
-          <li>Immediate updates</li>
-          <li>Email support</li>
-        </ul>
-        <a href="https://buy.stripe.com/YOUR_PAYMENT_LINK_HERE" class="btn btn-primary">Upgrade to Pro</a>
-      </div>
+<section class="pricing" id="pricing"><div class="container">
+  <h2>Pricing</h2>
+  <p>Start free. Upgrade when you're ready to trade live.</p>
+  <div class="price-grid">
+    <div class="plan">
+      <h3>Free</h3>
+      <div class="price">$0</div>
+      <div class="period">forever</div>
+      <ul>
+        <li>Full AI agent fleet</li>
+        <li>Unlimited paper trading</li>
+        <li>Autonomous research (SAGE)</li>
+        <li>Full backtesting engine</li>
+        <li>Agent chat</li>
+        <li>All market categories</li>
+      </ul>
+      <a href="#how" class="btn btn-ghost">Get Started Free</a>
+    </div>
+    <div class="plan pro">
+      <h3>Pro</h3>
+      <div class="price">$49<span>/mo</span></div>
+      <div class="period">cancel anytime</div>
+      <ul>
+        <li>Everything in Free</li>
+        <li>Live trading on Kalshi</li>
+        <li>Full orchestration (live mode)</li>
+        <li>Immediate updates</li>
+        <li>Email support</li>
+      </ul>
+      <a href="https://buy.stripe.com/YOUR_PAYMENT_LINK_HERE" class="btn btn-primary">Upgrade to Pro</a>
     </div>
   </div>
-</section>
+</div></section>
 
-<footer>
-  <div class="container">
-    <p>Undertow is not financial advice. Past performance does not indicate future results.</p>
-    <p style="margin-top: 8px;">
-      <a href="legal/DISCLAIMER.html">Disclaimer</a> &middot;
-      <a href="legal/TERMS_OF_SERVICE.html">Terms</a> &middot;
-      <a href="legal/PRIVACY_POLICY.html">Privacy</a>
-    </p>
-  </div>
-</footer>
+<footer><div class="container">
+  <p>Undertow is not financial advice. Past performance does not indicate future results.</p>
+  <p style="margin-top:6px"><a href="legal/DISCLAIMER.html">Disclaimer</a> &middot; <a href="legal/TERMS_OF_SERVICE.html">Terms</a> &middot; <a href="legal/PRIVACY_POLICY.html">Privacy</a></p>
+</div></footer>
 
 </body>
 </html>
