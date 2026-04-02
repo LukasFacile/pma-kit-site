@@ -146,6 +146,22 @@ section{padding:56px 0}
 .plan .btn{width:100%;text-align:center}
 .pr-note{text-align:center;margin-top:14px;font-size:.72rem;color:var(--mt)}
 
+/* Two modes */
+.modes h2{text-align:center;font-size:1.4rem;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.modes>div>.w>p{text-align:center;color:var(--mt);font-size:.85rem;margin-bottom:24px}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:740px;margin:0 auto}
+@media(max-width:640px){.mode-grid{grid-template-columns:1fr}}
+.mode{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:24px;position:relative;overflow:hidden}
+.mode:hover{border-color:var(--bd2)}
+.mode::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--ac)}
+.mode.claude::before{background:linear-gradient(90deg,var(--ac),var(--cy))}
+.mode-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--ac2);margin-bottom:6px}
+.mode h3{font-size:1rem;font-weight:700;margin-bottom:6px;letter-spacing:-.01em}
+.mode p{font-size:.82rem;color:var(--tx2);line-height:1.5;margin-bottom:10px}
+.mode-code{background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:10px 14px;font-family:var(--mono);font-size:.72rem;line-height:1.7;color:var(--mt);overflow-x:auto}
+.mode-code .prompt{color:var(--gn)}.mode-code .comment{color:var(--bd2)}
+.mode-code .user{color:var(--tx)}.mode-code .ai{color:var(--ac2)}
+
 /* FAQ */
 .faq h2{text-align:center;font-size:1.4rem;font-weight:700;letter-spacing:-.01em;margin-bottom:24px}
 .faq-list{max-width:640px;margin:0 auto}
@@ -174,13 +190,13 @@ footer a{color:var(--mt)}footer a:hover{color:var(--tx2)}
 
 <nav><div class="w">
   <div class="logo"><span>U</span>ndertow</div>
-  <div class="links"><a href="#agents">Agents</a><a href="#proof">Results</a><a href="#markets">Markets</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+  <div class="links"><a href="#agents">Agents</a><a href="#modes">Claude</a><a href="#proof">Results</a><a href="#markets">Markets</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
 </div></nav>
 
 <section class="hero"><div class="w">
   <div class="hero-label">Self-improving AI agents for prediction markets</div>
   <h1>Four AI Agents.<br>Every Market.<br><em>Zero Babysitting.</em></h1>
-  <p>An autonomous research and trading system that discovers prediction market edges, executes them, catches its own mistakes, and improves &mdash; across sports, elections, gas prices, weather, and economics.</p>
+  <p>An autonomous research and trading system that discovers prediction market edges, executes them, catches its own mistakes, and improves &mdash; across sports, elections, gas prices, weather, and economics. Run it standalone or talk to your markets through Claude.</p>
   <div class="btns">
     <a href="#pricing" class="btn btn-p">Get Undertow &mdash; $199</a>
     <a href="#agents" class="btn btn-g">See how it works</a>
@@ -215,6 +231,40 @@ footer a{color:var(--mt)}footer a:hover{color:var(--tx2)}
     <div class="loop-s" style="color:var(--cy)">Audit</div><div class="loop-a">&rarr;</div>
     <div class="loop-s" style="border-color:var(--ac);color:var(--ac2)">Improve</div>
   </div>
+</div></section>
+
+<section class="modes sep" id="modes"><div class="w">
+  <h2>Two ways to use Undertow.</h2>
+  <p>Run it standalone with the built-in dashboard, or connect it to Claude for a conversational AI trading experience.</p>
+  <div class="mode-grid">
+    <div class="mode">
+      <div class="mode-label">Standalone</div>
+      <h3>Dashboard + Agent Fleet</h3>
+      <p>Run the autonomous agents and monitor everything from your browser. Built-in chat, backtesting, portfolio tracking, and strategy management at localhost:8000.</p>
+      <div class="mode-code">
+        <span class="prompt">$</span> undertow agents<br>
+        <span class="comment"># Fleet starts: Conductor, Quant, Critic, Overseer</span><br>
+        <span class="prompt">$</span> undertow serve<br>
+        <span class="comment"># Dashboard at http://localhost:8000</span><br>
+        <span class="prompt">$</span> undertow backtest -s Momentum<br>
+        <span class="comment"># Backtest with full metrics</span>
+      </div>
+    </div>
+    <div class="mode claude">
+      <div class="mode-label">Claude Integration</div>
+      <h3>Talk to Your Markets</h3>
+      <p>Connect Undertow to Claude Desktop or Claude Code via MCP. Ask questions in plain English and Claude uses your live market data, backtesting engine, and portfolio to answer.</p>
+      <div class="mode-code">
+        <span class="user">"Which sports markets have wide spreads right now?"</span><br>
+        <span class="ai">Found 3 NBA markets with spreads above 6 cents. Lakers vs Celtics Outcome 2 has the widest at 8 cents...</span><br><br>
+        <span class="user">"Backtest MeanReversion on gas markets"</span><br>
+        <span class="ai">MeanReversion on gas: +12.3% ROI, 68% win rate, max drawdown 4.2% over 30 days...</span><br><br>
+        <span class="user">"What has Quant been researching?"</span><br>
+        <span class="ai">Last sprint: Quant tested weather market patterns and found...</span>
+      </div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:16px;font-size:.78rem;color:var(--mt)">Claude integration uses your own Claude subscription (Claude Desktop or API key). 10 MCP tools included — markets, backtesting, portfolio, agents, analysis.</p>
 </div></section>
 
 <section class="proof sep" id="proof"><div class="w">
@@ -282,6 +332,7 @@ footer a{color:var(--mt)}footer a:hover{color:var(--tx2)}
         <li>Paper and live trading on Kalshi</li>
         <li>Backtesting engine with full metrics</li>
         <li>Dashboard and agent chat</li>
+        <li>Claude integration (10 MCP tools)</li>
         <li>All 7 market categories</li>
         <li>All future software updates</li>
         <li>Lifetime license</li>
@@ -315,6 +366,7 @@ footer a{color:var(--mt)}footer a:hover{color:var(--tx2)}
     <details><summary>Can I add my own strategies?</summary><p>Yes. Drop a Python file in <code>~/.pma/strategies/</code> or publish a package. Any class extending <code>Strategy</code> is auto-discovered.</p></details>
     <details><summary>What happens when a strategy loses?</summary><p>That is expected and built into the design. 5 consecutive losses triggers auto-demotion. 30% drawdown triggers a halt. During testing, the system caught and stopped a 14-trade losing streak automatically.</p></details>
     <details><summary>What makes this different from a trading bot?</summary><p>Bots execute a fixed strategy. Undertow is a self-correcting research system. The agents argue with each other, reject bad strategies, and continuously discover new ones. The starters are seeds &mdash; Quant finds the rest.</p></details>
+    <details><summary>How does the Claude integration work?</summary><p>Undertow includes an MCP (Model Context Protocol) server with 10 tools. Add one line to your Claude Desktop or Claude Code config and Claude can access your markets, run backtests, check positions, and analyze strategies through natural conversation. You use your own Claude subscription &mdash; we don't resell AI access.</p></details>
     <details><summary>Why one-time instead of a subscription?</summary><p>Undertow runs on your machine with zero server costs to us. Charging monthly for locally-run software would be dishonest. You pay once, you own it. The optional Edge add-on ($19/mo) is for curated strategy content and community &mdash; ongoing value for ongoing price.</p></details>
     <details><summary>What do I get after I buy?</summary><p>A license key by email within minutes. Install with <code>pip install undertow-ai</code>, run <code>undertow setup</code>, activate your license, and start the agents.</p></details>
   </div>
